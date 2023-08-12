@@ -1,0 +1,11 @@
+FROM node:alpine
+
+COPY package*.json ./
+
+WORKDIR /apps
+
+RUN npm install --silent
+
+COPY . ./
+
+EXPOSE 7222

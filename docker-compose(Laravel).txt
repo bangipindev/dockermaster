@@ -1,0 +1,66 @@
+version: '3.3'
+
+#SERVICES
+services:
+  #PHP SERVICE
+  app:
+    build: .
+    container_name: phpcoba
+    image: phpcoba
+    restart: unless-stopped
+    tty: true
+    working_dir: /coba
+    # working_dir: /var/www/
+    environment:
+      - SERVICE_NAME=app
+    volumes:
+      # - ./src:/var/www/
+      - ./src:/coba/
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - app-laravel
+  
+  #MYSQL SERVICE
+  db:
+    image: mysql
+    container_name: dbcoba
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "33069:3306"
+    environment:
+      # - MYSQL_DATABASE=coba
+      # - MYSQL_USER=root
+      - MYSQL_PASSWORD=dockercoba
+      - MYSQL_ROOT_PASSWORD=dockercoba
+      - SERVICE_NAME=mysql
+    volumes:
+      - dbdata:/var/lib/mysql/
+    networks:
+      - app-laravel
+
+  #WEBSERVER
+  webserver:
+    image: nginx:alpine
+    container_name: servercoba
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "150:80"
+    volumes:
+      # - ./src:/var/www/
+      - ./src:/coba/
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - app-laravel
+
+#NETWORK
+networks:
+  app-laravel:
+    driver: bridge
+
+#VOLUMES
+volumes:
+  dbdata:
+    driver: local
+
